@@ -1,7 +1,14 @@
 import React from "react";
 import { AiOutlineMenu } from "react-icons/ai";
+import { useSelector } from "react-redux";
+import { RootState } from "redux/reducers";
+import { connectWallet } from "redux/slices/web3";
+import { useAppDispatch } from "redux/store";
 
 export const Header: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const account = useSelector((state: RootState) => state.web3.account);
+
   return (
     <>
       <nav className="fixed flex justify-between py-6 w-full lg:px-48 md:px-12 px-4 content-center bg-secondary z-10">
@@ -20,9 +27,18 @@ export const Header: React.FC = () => {
           </li>
         </ul> */}
         <div className="font-montserrat hidden md:block">
-          <button className="py-2 px-4 text-white bg-black rounded-3xl">
-            Connect to wallet
-          </button>
+          {account ? (
+            <p>Connected to {account}</p>
+          ) : (
+            <button
+              className="py-2 px-4 text-white bg-black rounded-3xl"
+              onClick={async () => {
+                await dispatch(connectWallet());
+              }}
+            >
+              Connect to wallet
+            </button>
+          )}
         </div>
         <div id="showMenu" className="md:hidden">
           <AiOutlineMenu />
