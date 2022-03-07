@@ -1,24 +1,49 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { ethers } from "ethers";
 
 interface IWeb3 {
-  account: number;
+  account: any;
 }
 
-const connectWalletHandler = () => {
-  if (window.ethereum && window.ethereum.isMetaMask) {
-  } else {
-    console.log("Need to install MetaMask");
+export const connectWallet = createAsyncThunk(
+  "web3/connect-wallet",
+  async (_, { rejectWithValue }) => {
+    if (!window.ethereum || !window.ethereum.isMetaMask) {
+      rejectWithValue("Need to install MetaMask");
+    }
+    const provider = new ethers.providers.Web3Provider(
+      window.ethereum as any,
+      "any"
+    );
+    const accounts = await provider.send("eth_requestAccounts", []);
+    console.log("accounts : ", accounts);
+
+    const signer = provider.getSigner();
+    console.log("signer : ", signer);
+
+    // Temporary
+    return signer.getAddress();
   }
-};
+);
 
 const initialState: IWeb3 = {
-  account: 20,
+  account: null,
 };
 
 const web3Slice = createSlice({
   name: "web3",
   initialState,
   reducers: {},
+  extraReducers(builder) {
+    builder
+      .addCase(connectWallet.pending, (state) => {
+        console.log("connectWallet : loading");
+      })
+      .addCase(connectWallet.fulfilled, (state, action) => {
+        console.log("signer address from extra reducer : ", action.payload);
+        state.account = action.payload;
+      });
+  },
 });
 
 export const {} = web3Slice.actions;

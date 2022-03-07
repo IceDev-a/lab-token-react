@@ -1,6 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { connectWallet } from "redux/slices/web3";
+import { useAppDispatch } from "redux/store";
 
 export const Main: React.FC = () => {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    const fun = async () => {
+      console.log("connect wallet : ", await dispatch(connectWallet()));
+    };
+    fun();
+  }, [dispatch]);
   return (
     <section className="pt-24 md:mt-0 md:h-screen flex flex-col justify-center text-center md:text-left md:flex-row md:justify-between md:items-center lg:px-48 md:px-12 px-4 bg-secondary">
       <div className="md:flex-1 md:mr-10">
