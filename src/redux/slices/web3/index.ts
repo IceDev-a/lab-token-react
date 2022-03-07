@@ -31,6 +31,15 @@ export const connectWallet = createAsyncThunk(
         dispatch(updateAccount(account[0]))
       );
 
+      // NOTE: MetaMask docs recommend to reload the page when chain changes
+      // window.ethereum.on("chainChanged", (_chainId) =>
+      //   window.location.reload()
+      // );
+      window.ethereum.on("chainChanged", (_chainId) => {
+        console.log("chainChanged chain id : ", _chainId);
+        dispatch(reset());
+      });
+
       // Temporary
       return { account: await signer.getAddress() };
     } catch (error) {
@@ -52,9 +61,10 @@ const web3Slice = createSlice({
   name: "web3",
   initialState,
   reducers: {
-    updateAccount(state, action) {
+    updateAccount: (state, action) => {
       state.account = action.payload;
     },
+    reset: () => initialState,
   },
   extraReducers(builder) {
     builder
@@ -76,6 +86,6 @@ const web3Slice = createSlice({
 //   console.log("accountsChanged : ", account)
 // );
 
-export const { updateAccount } = web3Slice.actions;
+export const { updateAccount, reset } = web3Slice.actions;
 
 export default web3Slice.reducer;
